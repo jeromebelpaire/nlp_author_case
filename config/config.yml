@@ -1,0 +1,6 @@
+paths:
+    data: 
+      raw_path: 'data/0_raw/'
+      interim_path: 'data/1_interim/'
+      processed_path: 'data/2_processed/'
+      temp_path: 'data/temp/'

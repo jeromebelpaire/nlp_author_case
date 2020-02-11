@@ -13,11 +13,10 @@ class Config:
         self.processed_data_path = self.config['paths']['data']['processed_path']
         self.temp_data_path = self.config['paths']['data']['temp_path']
 
-     def get_raw_data_path(self):
+    def get_raw_data_path(self):
         return self.raw_data_path
 
     def get_interim_data_path(self):
-        print(self.interim_data_path)
         return self.interim_data_path        
 
     def get_processed_data_path(self):

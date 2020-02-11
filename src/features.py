@@ -3,9 +3,10 @@ import string
 # from spacy.lang.en import English
 # from spacy.lang.en.stop_words import STOP_WORDS
 import pandas as pd
+import numpy as np
 import os 
 import sys
-from sklearn.base import TransformerMixin
+from sklearn.base import TransformerMixin, BaseEstimator
 from sklearn.feature_extraction.text import CountVectorizer,TfidfVectorizer
 from sklearn.ensemble import RandomForestClassifier
 
@@ -49,6 +50,43 @@ class predictors(TransformerMixin):
 
     def get_params(self, deep=True):
         return {}
+
+# Custom transformer using spaCy
+class predictors2(TransformerMixin):
+    def transform(self, X, **transform_params):
+        # Cleaning Text
+        return [len(text) for text in X]
+
+    def fit(self, X, y=None, **fit_params):
+        return self
+
+    def get_params(self, deep=True):
+        return {}
+
+class Debug(BaseEstimator, TransformerMixin):
+
+    def transform(self, X):
+        print(pd.DataFrame(X).head())
+        print(X.shape)
+        print(type)
+        return X
+
+    def fit(self, X, y=None, **fit_params):
+        return self
+
+class Converter(BaseEstimator, TransformerMixin):
+    def fit(self, x, y=None):
+        return self
+
+    def transform(self, data_frame):
+        return data_frame.values.ravel()
+
+class ArrayCaster(BaseEstimator, TransformerMixin):
+  def fit(self, x, y=None):
+    return self
+
+  def transform(self, data):
+    return np.transpose(np.matrix(data))
 
 # Basic function to clean the text
 def clean_text(text):

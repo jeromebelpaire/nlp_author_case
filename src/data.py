@@ -4,7 +4,12 @@ import glob
 import os 
 import sys
 
-def construct_training_dataframe(directory='C:/Users/Jerome/OneDrive - Agilytic/Agilytic/Training/nlp_author_case/data/0_raw/training/'):
+from config import Config
+
+config = Config()
+
+def construct_training_dataframe(directory=''):
+    directory = '{}training/'.format(config.get_raw_data_path())
     res = pd.DataFrame()
     for file_ in glob.glob("{}doc_*.txt".format(directory)):
         with open(file_, encoding='utf-8') as f:
@@ -14,7 +19,7 @@ def construct_training_dataframe(directory='C:/Users/Jerome/OneDrive - Agilytic/
         res = pd.concat([res,pd.DataFrame(data = {"id" : [filename[6:-3]], 
                                                   "text" : [textf], 
                                                   "author" : [filename[-3:]]})])
-    res.to_csv('./data/1_interim/training.csv',index=False)
+    res.to_csv('{}training.csv'.format(config.get_interim_data_path()),index=False)
     return res
 
 

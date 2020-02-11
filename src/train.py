@@ -1,13 +1,17 @@
 from data import construct_training_dataframe
-from features import predictors, bow_vector, tfidf_vector
+from config import Config
+from features import predictors, bow_vector, tfidf_vector, predictors2, Debug, Converter, ArrayCaster
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.pipeline import Pipeline
+from sklearn.compose import make_column_transformer
+from sklearn.pipeline import Pipeline, FeatureUnion
+from sklearn.naive_bayes import MultinomialNB
 from sklearn import metrics
 import pandas as pd
 import os
 import sys
+import random
 
 #Set main directory 
 # if "__file__" in globals():
@@ -18,9 +22,11 @@ import sys
 #     print(path)
 # sys.path.insert(0, path)
 
+config = Config()
+random.seed(42)
 
 #Test
-training_df = pd.read_csv('./data/1_interim/training.csv') #Read dataset
+training_df = pd.read_csv('{}training.csv'.format(config.get_interim_data_path())) #Read dataset
 print(training_df.head())
 
 #Split train test
@@ -48,27 +54,67 @@ def logistic_regression_classifier():
     # print("Logistic Regression Recall:",metrics.recall_score(y_test, predicted))
     return predicted
 
+def random_forest_classifier():
+    '''
+    Performance with seed 42: 0.70
+    '''
+    classifier = RandomForestClassifier(n_estimators=100)
 
-# Logistic Regression Classifier
-classifier = RandomForestClassifier(n_estimators=100)
+    # Create pipeline using Bag of Words
+    pipe = Pipeline([('cleaner', predictors()),
+                    ('vectorizer', tfidf_vector),
+                    ('classifier', classifier)])
 
-# Create pipeline using Bag of Words
-pipe = Pipeline([('cleaner', predictors()),
-                ('vectorizer', tfidf_vector),
-                ('classifier', classifier)])
-# model generation
-pipe.fit(X_train,y_train)
-print(X_train[0])
+    # Fit pl to the training data
+    pipe.fit(X_train, y_train)
 
-#Predict
-predicted = pipe.predict(X_test)
+    #Predict
+    predicted = pipe.predict(X_test)
 
-# Model Accuracy
-print("Random Forest Accuracy:",metrics.accuracy_score(y_test, predicted))
-# print("Logistic Regression Precision:",metrics.precision_score(y_test, predicted))
-# print("Logistic Regression Recall:",metrics.recall_score(y_test, predicted))
+    # Model Accuracy
+    print("Random Forest Accuracy:",metrics.accuracy_score(y_test, predicted))
+
+def multinomial_classifier():
+    '''
+    Performance with seed 42: 0.80
+    '''
+    classifier = MultinomialNB()
+
+    # Create pipeline using Bag of Words
+    pipe = Pipeline([('cleaner', predictors()),
+                    ('vectorizer', tfidf_vector),
+                    ('classifier', classifier)])
+
+    # Fit pl to the training data
+    pipe.fit(X_train, y_train)
+
+    #Predict
+    predicted = pipe.predict(X_test)
+
+    # Model Accuracy
+    print("Multinomial Accuracy:",metrics.accuracy_score(y_test, predicted))
+
+def nested_pipelines():
+    # Create a FeatureUnion with nested pipeline: process_and_join_features
+    process_and_join_features = FeatureUnion(
+                transformer_list = [
+                    ('feat1', Pipeline([
+                        ('cleaner', predictors()),
+                        ('vectorizer', tfidf_vector)
+                    ])),
+                    ('feat2', Pipeline([
+                        ('cleaner2', predictors2()),
+                        ('caster', ArrayCaster())
+                    ]))
+                 ]
+            )
+
+    # Instantiate nested pipeline: pl
+    pipe = Pipeline([
+            ('union', process_and_join_features),
+            ('classifier', classifier)
+        ])
 
 
-# random_forest_classifier()
-#Construct dataset
-# construct_training_dataframe()
+if __name__ == "__main__":
+    multinomial_classifier()

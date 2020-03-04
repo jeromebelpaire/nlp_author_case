@@ -12,6 +12,7 @@ import pandas as pd
 import os
 import sys
 import random
+import pickle
 
 #Set main directory 
 # if "__file__" in globals():
@@ -23,7 +24,7 @@ import random
 # sys.path.insert(0, path)
 
 config = Config()
-random.seed(42)
+seed = random.seed(42)
 
 #Test
 training_df = pd.read_csv('{}training.csv'.format(config.get_interim_data_path())) #Read dataset
@@ -32,7 +33,7 @@ print(training_df.head())
 #Split train test
 X = training_df['text'] # the features we want to analyze
 y = training_df['author'] # the labels, or answers, we want to test against
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=seed)
 
 def logistic_regression_classifier():
     # Logistic Regression Classifier
@@ -94,6 +95,31 @@ def multinomial_classifier():
     # Model Accuracy
     print("Multinomial Accuracy:",metrics.accuracy_score(y_test, predicted))
 
+def multinomial_classifier_countvectorizer():
+    '''
+    Performance with seed 42: 0.84
+    '''
+    classifier = MultinomialNB()
+
+    # Create pipeline using Bag of Words
+    pipe = Pipeline([('cleaner', predictors()),
+                    ('vectorizer', bow_vector),
+                    ('classifier', classifier)])
+
+    # Fit pl to the training data
+    pipe.fit(X_train, y_train)
+
+    #Predict
+    predicted = pipe.predict(X_test)
+
+    #Save
+    save_path = '{}multinomial_classifier_countvectorizer.pkl'.format(config.get_models_path())
+    with open(save_path,'wb') as f:
+        pickle.dump(pipe,f)
+
+    # Model Accuracy
+    print("Multinomial Accuracy:",metrics.accuracy_score(y_test, predicted))
+
 def nested_pipelines():
     # Create a FeatureUnion with nested pipeline: process_and_join_features
     process_and_join_features = FeatureUnion(
@@ -117,4 +143,4 @@ def nested_pipelines():
 
 
 if __name__ == "__main__":
-    multinomial_classifier()
+    multinomial_classifier_countvectorizer()

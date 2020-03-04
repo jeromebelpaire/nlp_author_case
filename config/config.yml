@@ -4,3 +4,4 @@ paths:
       interim_path: 'data/1_interim/'
       processed_path: 'data/2_processed/'
       temp_path: 'data/temp/'
+    models_path: 'models/'

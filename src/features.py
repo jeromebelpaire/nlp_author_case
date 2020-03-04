@@ -21,7 +21,7 @@ sys.path.insert(0, path)
 
 # nlp = spacy.load('en_core_web_lg')
 # English = spacy.load('en')
-parser = spacy.load('en')
+parser = spacy.load('en_core_web_sm')
 stop_words = parser.Defaults.stop_words
 punctuations = string.punctuation
 
@@ -93,7 +93,7 @@ def clean_text(text):
     # Removing spaces and converting text into lowercase
     return text.strip().lower()
 
-bow_vector = CountVectorizer(tokenizer = spacy_tokenizer, ngram_range=(1,1))
+bow_vector = CountVectorizer(tokenizer = spacy_tokenizer, ngram_range=(1,3))
 tfidf_vector = TfidfVectorizer(tokenizer = spacy_tokenizer)
 
 #test

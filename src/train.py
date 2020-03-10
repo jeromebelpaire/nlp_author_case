@@ -1,6 +1,6 @@
 from data import construct_training_dataframe
 from config import Config
-from features import predictors, bow_vector, tfidf_vector, predictors2, Debug, Converter, ArrayCaster
+from features import predictors, bow_vector, tfidf_vector, predictors2
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import RandomForestClassifier
@@ -14,28 +14,50 @@ import sys
 import random
 import pickle
 
-#Set main directory 
-# if "__file__" in globals():
-#     path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-#     print(path)
-# else:
-#     path = os.path.dirname(globals()['_dh'][0])
-#     print(path)
-# sys.path.insert(0, path)
+def train(model_name, training_csv_path=''):
+    '''
+    Train model based on model name:
+    Available modelling pipelines:
+        'logistic_regression_classifier'
+        'random_forest_classifier'
+        'multinomial_classifier'
+        'multinomial_classifier_countvectorizer'
+        'deep_learning_ulm_fit' -> This one is not implemented here, 
+                                   but in Google Colab
 
-config = Config()
-seed = random.seed(42)
+    '''
+    #Setup
+    config = Config()
+    seed = random.seed(42)
 
-#Test
-training_df = pd.read_csv('{}training.csv'.format(config.get_interim_data_path())) #Read dataset
-print(training_df.head())
+    #Load training set
+    if training_csv_path == '':
+        training_df = pd.read_csv('{}training.csv'.format(config.get_interim_data_path())) #Read dataset
+        print(training_df.head())
 
-#Split train test
-X = training_df['text'] # the features we want to analyze
-y = training_df['author'] # the labels, or answers, we want to test against
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=seed)
+    #Split train test
+    X = training_df['text'] # the features we want to analyze
+    y = training_df['author'] # the labels, or answers, we want to test against
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=seed)
 
-def logistic_regression_classifier():
+    #Apply and save model
+    if model_name == 'logistic_regression_classifier':
+        logistic_regression_classifier(X_train, X_test, y_train, y_test)
+    elif model_name == 'logistic_regression_classifier':
+        logistic_regression_classifier(X_train, X_test, y_train, y_test)
+    elif model_name == 'logistic_regression_classifier':
+        logistic_regression_classifier(X_train, X_test, y_train, y_test)
+    elif model_name == 'logistic_regression_classifier':
+        logistic_regression_classifier(X_train, X_test, y_train, y_test)
+    else:
+        raise NotImplementedError('This model is not Known')
+
+def logistic_regression_classifier(X_train, X_test, y_train, y_test):
+    '''
+    Train with countvectorizer and Logistic Regression
+    Performance with seed 42: 0.77
+    '''
+
     # Logistic Regression Classifier
     classifier = LogisticRegression()
 
@@ -49,14 +71,17 @@ def logistic_regression_classifier():
     #Predict
     predicted = pipe.predict(X_test)
 
+    #Save
+    save_path = '{}logistic_regression_classifier.pkl'.format(config.get_models_path())
+    with open(save_path,'wb') as f:
+        pickle.dump(pipe,f)
+
     # Model Accuracy
     print("Logistic Regression Accuracy:",metrics.accuracy_score(y_test, predicted))
-    # print("Logistic Regression Precision:",metrics.precision_score(y_test, predicted))
-    # print("Logistic Regression Recall:",metrics.recall_score(y_test, predicted))
-    return predicted
 
-def random_forest_classifier():
+def random_forest_classifier(X_train, X_test, y_train, y_test):
     '''
+    Train with tfidf and Random forest
     Performance with seed 42: 0.70
     '''
     classifier = RandomForestClassifier(n_estimators=100)
@@ -72,11 +97,17 @@ def random_forest_classifier():
     #Predict
     predicted = pipe.predict(X_test)
 
+    #Save
+    save_path = '{}rano.pkl'.format(config.get_models_path())
+    with open(save_path,'wb') as f:
+        pickle.dump(pipe,f)
+
     # Model Accuracy
     print("Random Forest Accuracy:",metrics.accuracy_score(y_test, predicted))
 
-def multinomial_classifier():
+def multinomial_classifier(X_train, X_test, y_train, y_test):
     '''
+    Train with tfidf vector and Multinomial classifier
     Performance with seed 42: 0.80
     '''
     classifier = MultinomialNB()
@@ -92,11 +123,17 @@ def multinomial_classifier():
     #Predict
     predicted = pipe.predict(X_test)
 
+    #Save
+    save_path = '{}multinomial_classifier.pkl'.format(config.get_models_path())
+    with open(save_path,'wb') as f:
+        pickle.dump(pipe,f)
+
     # Model Accuracy
     print("Multinomial Accuracy:",metrics.accuracy_score(y_test, predicted))
 
-def multinomial_classifier_countvectorizer():
+def multinomial_classifier_countvectorizer(X_train, X_test, y_train, y_test):
     '''
+    Train with countvectorizer and Multinomial classifier
     Performance with seed 42: 0.84
     '''
     classifier = MultinomialNB()
@@ -120,27 +157,13 @@ def multinomial_classifier_countvectorizer():
     # Model Accuracy
     print("Multinomial Accuracy:",metrics.accuracy_score(y_test, predicted))
 
-def nested_pipelines():
-    # Create a FeatureUnion with nested pipeline: process_and_join_features
-    process_and_join_features = FeatureUnion(
-                transformer_list = [
-                    ('feat1', Pipeline([
-                        ('cleaner', predictors()),
-                        ('vectorizer', tfidf_vector)
-                    ])),
-                    ('feat2', Pipeline([
-                        ('cleaner2', predictors2()),
-                        ('caster', ArrayCaster())
-                    ]))
-                 ]
-            )
-
-    # Instantiate nested pipeline: pl
-    pipe = Pipeline([
-            ('union', process_and_join_features),
-            ('classifier', classifier)
-        ])
-
+def deep_learning_ulm_fit(X_train, X_test, y_train, y_test):
+    '''
+    Train with deeplearning using ULMfit data
+    Performance with seed 42: 0.86
+    '''
+    raise NotImplementedError('This model should be Trained using Google Colab for GPU power, please see ./scripts/train_ulm_fit.ipynb')
 
 if __name__ == "__main__":
-    multinomial_classifier_countvectorizer()
+    # train('deep_learning_ulm_fit')
+    train('logistic_regression_classifier')

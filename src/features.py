@@ -63,31 +63,6 @@ class predictors2(TransformerMixin):
     def get_params(self, deep=True):
         return {}
 
-class Debug(BaseEstimator, TransformerMixin):
-
-    def transform(self, X):
-        print(pd.DataFrame(X).head())
-        print(X.shape)
-        print(type)
-        return X
-
-    def fit(self, X, y=None, **fit_params):
-        return self
-
-class Converter(BaseEstimator, TransformerMixin):
-    def fit(self, x, y=None):
-        return self
-
-    def transform(self, data_frame):
-        return data_frame.values.ravel()
-
-class ArrayCaster(BaseEstimator, TransformerMixin):
-  def fit(self, x, y=None):
-    return self
-
-  def transform(self, data):
-    return np.transpose(np.matrix(data))
-
 # Basic function to clean the text
 def clean_text(text):
     # Removing spaces and converting text into lowercase
@@ -95,8 +70,3 @@ def clean_text(text):
 
 bow_vector = CountVectorizer(tokenizer = spacy_tokenizer, ngram_range=(1,3))
 tfidf_vector = TfidfVectorizer(tokenizer = spacy_tokenizer)
-
-#test
-# training_df = pd.read_csv('./data/1_interim/training.csv')
-# training_case = training_df.iloc[0,2]
-# doc = nlp(training_case)

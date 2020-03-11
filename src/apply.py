@@ -1,15 +1,14 @@
-from config import Config
 import pandas as pd
 import os
 import sys
 import pickle
 from joblib import dump, load
-# import fastai
 from fastai.text import load_learner, DatasetType
+from src.config import Config
 
 config = Config()
 
-def apply_multinomial_classifier_countvectorizer(input_path):
+def apply_multinomial_classifier_countvectorizer(input_path, max_number_of_rows):
     '''
     Apply saved multinomial classifier on csv file with one or multiple lines
     '''
@@ -19,7 +18,8 @@ def apply_multinomial_classifier_countvectorizer(input_path):
         model = pickle.load(f)
 
     input_df = pd.read_csv(input_path) #Read dataset
-    # input_df = input_df.iloc[0:100] #Truncate rows
+    if max_number_of_rows > 0:
+        input_df = input_df.iloc[0:min(max_number_of_rows, input_df.shape[0])] #Truncate rows
     print(input_df.head())
 
     prob_preds = model.predict_proba(input_df['text'])
@@ -35,7 +35,7 @@ def apply_multinomial_classifier_countvectorizer(input_path):
 
     return result_df
 
-def apply_fastai_model(input_path):
+def apply_fastai_model(input_path, max_number_of_rows=None):
     '''
     Apply saved fastai (ULM_fit) classifier on csv file with one or multiple lines
     Carefull: slow without GPU
@@ -44,7 +44,9 @@ def apply_fastai_model(input_path):
     learn = load_learner(config.get_models_path())
 
     input_df = pd.read_csv(input_path)
-    # input_df = input_df.iloc[0:3] #Truncate rows
+    if max_number_of_rows > 0:
+        input_df = input_df.iloc[0:min(max_number_of_rows, input_df.shape[0])] #Truncate rows
+         
     learn.data.add_test(input_df['text'])
     print(input_df.head())
 
@@ -76,5 +78,7 @@ def apply_fastai_model_on_sentence(sentence):
 if __name__ == "__main__":
     #Test case
     config = Config()
-    result = apply_fastai_model_on_sentence('Idris was very content')
+    # result = apply_fastai_model_on_sentence('Idris was very content')
+    input_path = '{}training.csv'.format(config.get_interim_data_path()) #default, change if necessary
+    result = apply_fastai_model(input_path=input_path, max_number_of_rows=2)
     print(result)

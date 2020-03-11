@@ -1,7 +1,5 @@
 import spacy 
 import string
-# from spacy.lang.en import English
-# from spacy.lang.en.stop_words import STOP_WORDS
 import pandas as pd
 import numpy as np
 import os 

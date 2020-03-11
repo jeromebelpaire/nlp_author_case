@@ -1,6 +1,3 @@
-from data import construct_training_dataframe
-from config import Config
-from features import predictors, bow_vector, tfidf_vector, predictors2
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import RandomForestClassifier
@@ -13,6 +10,10 @@ import os
 import sys
 import random
 import pickle
+
+from src.data import construct_training_dataframe
+from src.config import Config
+from src.features import predictors, bow_vector, tfidf_vector, predictors2
 
 def train(model_name, training_csv_path=''):
     '''
@@ -43,12 +44,14 @@ def train(model_name, training_csv_path=''):
     #Apply and save model
     if model_name == 'logistic_regression_classifier':
         logistic_regression_classifier(X_train, X_test, y_train, y_test)
-    elif model_name == 'logistic_regression_classifier':
-        logistic_regression_classifier(X_train, X_test, y_train, y_test)
-    elif model_name == 'logistic_regression_classifier':
-        logistic_regression_classifier(X_train, X_test, y_train, y_test)
-    elif model_name == 'logistic_regression_classifier':
-        logistic_regression_classifier(X_train, X_test, y_train, y_test)
+    elif model_name == 'random_forest_classifier':
+        random_forest_classifier(X_train, X_test, y_train, y_test)
+    elif model_name == 'multinomial_classifier':
+        multinomial_classifier(X_train, X_test, y_train, y_test)
+    elif model_name == 'multinomial_classifier_countvectorizer':
+        multinomial_classifier_countvectorizer(X_train, X_test, y_train, y_test)
+    elif model_name == 'deep_learning_ulm_fit':
+        deep_learning_ulm_fit(X_train, X_test, y_train, y_test)
     else:
         raise NotImplementedError('This model is not Known')
 
@@ -165,5 +168,5 @@ def deep_learning_ulm_fit(X_train, X_test, y_train, y_test):
     raise NotImplementedError('This model should be Trained using Google Colab for GPU power, please see ./scripts/train_ulm_fit.ipynb')
 
 if __name__ == "__main__":
-    # train('deep_learning_ulm_fit')
-    train('logistic_regression_classifier')
+    train('deep_learning_ulm_fit')
+    # train('logistic_regression_classifier')

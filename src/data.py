@@ -4,7 +4,7 @@ import glob
 import os 
 import sys
 
-from config import Config
+from src.config import Config
 
 config = Config()
 

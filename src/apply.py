@@ -18,8 +18,9 @@ def apply_multinomial_classifier_countvectorizer(input_path, max_number_of_rows)
         model = pickle.load(f)
 
     input_df = pd.read_csv(input_path) #Read dataset
-    if max_number_of_rows > 0:
+    if max_number_of_rows is not None:
         input_df = input_df.iloc[0:min(max_number_of_rows, input_df.shape[0])] #Truncate rows
+    print('Showing head of input dataframe')
     print(input_df.head())
 
     prob_preds = model.predict_proba(input_df['text'])
@@ -44,10 +45,11 @@ def apply_fastai_model(input_path, max_number_of_rows=None):
     learn = load_learner(config.get_models_path())
 
     input_df = pd.read_csv(input_path)
-    if max_number_of_rows > 0:
+    if max_number_of_rows is not None:
         input_df = input_df.iloc[0:min(max_number_of_rows, input_df.shape[0])] #Truncate rows
          
     learn.data.add_test(input_df['text'])
+    print('Showing head of input dataframe')
     print(input_df.head())
 
     prob_preds = learn.get_preds(ds_type=DatasetType.Test, ordered=True)

@@ -1,4 +1,4 @@
-from apply import apply_fastai_model_on_sentence
+from src.apply import apply_fastai_model_on_sentence
 from flask import Flask, request
 from flask_restful import Resource, Api
 from src.config import Config
